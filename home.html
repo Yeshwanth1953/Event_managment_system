@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Home</title>
+
+<style>
+body{
+    font-family:Segoe UI;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    margin:0;
+    height:100vh;
+    color:white;
+}
+
+/* NAVBAR */
+.nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 30px;
+    background: rgba(0,0,0,0.2);
+}
+
+.logout{
+    background:#e74c3c;
+    border:none;
+    padding:8px 15px;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+/* CENTER */
+.container{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:80vh;
+}
+
+/* TITLE */
+h1{
+    font-size:40px;
+    margin-bottom:40px;
+}
+
+/* CARDS */
+.cards{
+    display:flex;
+    gap:30px;
+}
+
+.card{
+    background:white;
+    color:black;
+    padding:30px;
+    width:200px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:scale(1.05);
+}
+
+/* TOAST */
+#toast{
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:12px 20px;
+    border-radius:8px;
+    color:white;
+    display:none;
+    font-weight:bold;
+}
+.success{ background:#2ecc71; }
+.error{ background:#e74c3c; }
+.warning{ background:#f39c12; }
+
+</style>
+
+<script>
+if(!localStorage.getItem("user")){
+    window.location.href="index.html";
+}
+</script>
+
+</head>
+
+<body>
+
+<div id="toast"></div>
+
+<!-- NAVBAR -->
+<div class="nav">
+    <div id="welcome"></div>
+    <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+<h1>Dashboard</h1>
+
+<div class="cards">
+    <div class="card" onclick="go('personal.html')">
+        <h2>Personal</h2>
+        <p>Manage your events</p>
+    </div>
+
+    <div class="card" onclick="go('work.html')">
+        <h2>Workspace</h2>
+        <p>Manage meetings</p>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// 🔔 TOAST
+function showToast(msg,type="success"){
+    let toast=document.getElementById("toast");
+    toast.innerText=msg;
+    toast.className=type;
+    toast.style.display="block";
+
+    setTimeout(()=>{
+        toast.style.display="none";
+    },2000);
+}
+
+// 👤 SHOW USER NAME
+let email=localStorage.getItem("user");
+let users=JSON.parse(localStorage.getItem("users"))||{};
+
+if(users[email]){
+    document.getElementById("welcome").innerText="Welcome, "+users[email].name;
+} else {
+    document.getElementById("welcome").innerText="Welcome";
+}
+
+// NAVIGATION
+function go(page){
+    setTimeout(()=>{
+        window.location.href=page;
+    },500);
+}
+
+// LOGOUT
+function logout(){
+    localStorage.removeItem("user");
+    showToast("Logged out","success");
+
+    setTimeout(()=>{
+        window.location.href="index.html";
+    },800);
+}
+
+</script>
+
+</body>
+</html>

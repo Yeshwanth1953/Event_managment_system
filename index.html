@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Event Management System</title>
+
+<style>
+body{
+    font-family:Segoe UI;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
+
+.box{
+    background:white;
+    padding:30px;
+    width:320px;
+    border-radius:12px;
+    text-align:center;
+}
+
+h2{
+    margin-bottom:20px;
+}
+
+button{
+    padding:10px;
+    margin:10px;
+    width:120px;
+    cursor:pointer;
+    border:none;
+    background:#333;
+    color:white;
+    border-radius:6px;
+}
+
+input{
+    width:90%;
+    padding:10px;
+    margin:8px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+.hidden{
+    display:none;
+}
+
+/* TOAST */
+#toast{
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:12px 20px;
+    border-radius:8px;
+    color:white;
+    display:none;
+    font-weight:bold;
+}
+.success{ background:#2ecc71; }
+.error{ background:#e74c3c; }
+.warning{ background:#f39c12; }
+</style>
+
+</head>
+
+<body>
+
+<!-- 🔔 TOAST -->
+<div id="toast"></div>
+
+<div class="box">
+
+<h2>Event Management System</h2>
+
+<!-- CHOICE -->
+<div id="choice">
+    <button onclick="showLogin()">Login</button>
+    <button onclick="showSignup()">Signup</button>
+</div>
+
+<!-- LOGIN -->
+<div id="loginForm" class="hidden">
+    <input id="l_email" placeholder="Email"><br>
+    <input id="l_password" type="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button><br>
+    <button onclick="back()">Back</button>
+</div>
+
+<!-- SIGNUP -->
+<div id="signupForm" class="hidden">
+    <input id="s_name" placeholder="Name"><br>
+    <input id="s_age" placeholder="Age"><br>
+    <input id="s_phone" placeholder="Phone"><br>
+    <input id="s_email" placeholder="Email"><br>
+    <input id="s_password" type="password" placeholder="Password"><br>
+    <button onclick="signup()">Signup</button><br>
+    <button onclick="back()">Back</button>
+</div>
+
+</div>
+
+<script>
+
+// 🔔 TOAST FUNCTION
+function showToast(msg,type="success"){
+    let toast=document.getElementById("toast");
+    toast.innerText=msg;
+    toast.className=type;
+    toast.style.display="block";
+
+    setTimeout(()=>{
+        toast.style.display="none";
+    },2000);
+}
+
+// SHOW FORMS
+function showLogin(){
+    document.getElementById("choice").style.display="none";
+    document.getElementById("loginForm").style.display="block";
+}
+
+function showSignup(){
+    document.getElementById("choice").style.display="none";
+    document.getElementById("signupForm").style.display="block";
+}
+
+function back(){
+    document.getElementById("choice").style.display="block";
+    document.getElementById("loginForm").style.display="none";
+    document.getElementById("signupForm").style.display="none";
+}
+
+// SIGNUP
+function signup(){
+
+    let name=document.getElementById("s_name").value.trim();
+    let age=document.getElementById("s_age").value.trim();
+    let phone=document.getElementById("s_phone").value.trim();
+    let email=document.getElementById("s_email").value.trim();
+    let password=document.getElementById("s_password").value.trim();
+
+    if(!name || !age || !phone || !email || !password){
+        showToast("Fill all fields","warning");
+        return;
+    }
+
+    let phoneRegex=/^[0-9]{10}$/;
+    if(!phoneRegex.test(phone)){
+        showToast("Phone must be 10 digits","warning");
+        return;
+    }
+
+    let users=JSON.parse(localStorage.getItem("users")) || {};
+
+    if(users[email]){
+        showToast("User already exists","error");
+        return;
+    }
+
+    users[email]={name,age,phone,password};
+
+    localStorage.setItem("users",JSON.stringify(users));
+    localStorage.setItem("user",email);
+
+    showToast("Signup successful","success");
+
+    setTimeout(()=>{
+        window.location.href="home.html";
+    },1000);
+}
+
+// LOGIN
+function login(){
+
+    let email=document.getElementById("l_email").value.trim();
+    let password=document.getElementById("l_password").value.trim();
+
+    if(!email || !password){
+        showToast("Enter email & password","warning");
+        return;
+    }
+
+    let users=JSON.parse(localStorage.getItem("users")) || {};
+
+    if(!users[email]){
+        showToast("Signup first","error");
+        return;
+    }
+
+    if(users[email].password !== password){
+        showToast("Wrong password","error");
+        return;
+    }
+
+    localStorage.setItem("user",email);
+
+    showToast("Login successful","success");
+
+    setTimeout(()=>{
+        window.location.href="home.html";
+    },1000);
+}
+
+</script>
+
+</body>
+</html>

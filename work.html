@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Work Meetings</title>
+
+<style>
+body{
+    font-family:Segoe UI;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    margin:0;
+    color:white;
+}
+
+/* NAV */
+.nav{
+    display:flex;
+    justify-content:space-between;
+    padding:15px 30px;
+    background: rgba(0,0,0,0.2);
+}
+
+/* MAIN */
+.container{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-top:30px;
+}
+
+/* FORM */
+.form-box{
+    background:white;
+    color:black;
+    padding:20px;
+    border-radius:12px;
+    width:320px;
+    text-align:center;
+}
+
+input,textarea{
+    width:90%;
+    padding:10px;
+    margin:8px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    color:black;
+    padding:15px;
+    margin:10px;
+    width:320px;
+    border-radius:10px;
+}
+
+/* BUTTONS */
+.btn{
+    padding:8px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    margin:5px;
+}
+
+.delete{ background:#e74c3c; color:white; }
+.edit{ background:#3498db; color:white; }
+
+/* TOAST */
+#toast{
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:12px 20px;
+    border-radius:8px;
+    color:white;
+    display:none;
+}
+.success{ background:#2ecc71; }
+.error{ background:#e74c3c; }
+.warning{ background:#f39c12; }
+
+</style>
+
+</head>
+
+<body>
+
+<div id="toast"></div>
+
+<div class="nav">
+    <div>Work Meetings</div>
+    <button onclick="goHome()">Home</button>
+</div>
+
+<div class="container">
+
+<div class="form-box">
+<h3>Add Meeting</h3>
+
+<input id="name" placeholder="Meeting Name">
+
+<input type="date" id="date">
+<input type="time" id="time">
+
+<textarea id="note" placeholder="Optional Notes"></textarea>
+
+<button onclick="addMeeting()">Add Meeting</button>
+</div>
+
+<div id="list"></div>
+
+</div>
+
+<script>
+
+// TOAST
+function showToast(msg,type="success"){
+    let t=document.getElementById("toast");
+    t.innerText=msg;
+    t.className=type;
+    t.style.display="block";
+    setTimeout(()=>t.style.display="none",2000);
+}
+
+// ADD / UPDATE
+let editIndex=-1;
+
+function addMeeting(){
+
+    let name=nameEl.value;
+    let date=dateEl.value;
+    let time=timeEl.value;
+    let note=noteEl.value;
+
+    if(!name || !date){
+        showToast("Fill required fields","warning");
+        return;
+    }
+
+    let email=localStorage.getItem("user");
+    let data=JSON.parse(localStorage.getItem("events"))||{};
+    if(!data[email]) data[email]={personal:[],work:[]};
+
+    let obj={name,date,time,note};
+
+    if(editIndex==-1){
+        data[email].work.push(obj);
+        showToast("Meeting added");
+    } else {
+        data[email].work[editIndex]=obj;
+        editIndex=-1;
+        showToast("Meeting updated");
+    }
+
+    localStorage.setItem("events",JSON.stringify(data));
+
+    clearInputs();
+    show();
+}
+
+// DELETE
+function deleteMeeting(i){
+    let email=localStorage.getItem("user");
+    let data=JSON.parse(localStorage.getItem("events"));
+
+    data[email].work.splice(i,1);
+    localStorage.setItem("events",JSON.stringify(data));
+
+    showToast("Deleted","error");
+    show();
+}
+
+// EDIT
+function editMeeting(i){
+    let email=localStorage.getItem("user");
+    let data=JSON.parse(localStorage.getItem("events"));
+
+    let e=data[email].work[i];
+
+    nameEl.value=e.name;
+    dateEl.value=e.date;
+    timeEl.value=e.time;
+    noteEl.value=e.note;
+
+    editIndex=i;
+}
+
+// SHOW
+function show(){
+    let email=localStorage.getItem("user");
+    let data=JSON.parse(localStorage.getItem("events"))||{};
+    let arr=data[email]?.work||[];
+
+    let out="";
+
+    arr.forEach((e,i)=>{
+        out+=`
+        <div class="card">
+        <h3>📅 ${e.name}</h3>
+        <p><b>Date:</b> ${e.date}</p>
+        <p><b>Time:</b> ${e.time || "-"}</p>
+        <p>${e.note || ""}</p>
+
+        <button class="btn edit" onclick="editMeeting(${i})">Edit</button>
+        <button class="btn delete" onclick="deleteMeeting(${i})">Delete</button>
+        </div>
+        `;
+    });
+
+    list.innerHTML=out || "<p>No meetings</p>";
+}
+
+// SHORTCUTS
+let nameEl=document.getElementById("name");
+let dateEl=document.getElementById("date");
+let timeEl=document.getElementById("time");
+let noteEl=document.getElementById("note");
+let list=document.getElementById("list");
+
+function clearInputs(){
+    nameEl.value="";
+    dateEl.value="";
+    timeEl.value="";
+    noteEl.value="";
+}
+
+function goHome(){
+    window.location.href="home.html";
+}
+
+window.onload=show;
+
+</script>
+
+</body>
+</html>
